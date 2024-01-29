@@ -20,3 +20,18 @@ spec:
         children: []
         logger:  # Loglama ayarları
           mode: all  # Hem giriş hem de çıkış mesajlarını logla
+      metrics:
+        - name: custom-metric-1
+          backend:
+            name: prometheus
+            prometheus:
+              query: 'sum(my_custom_metric_1)'
+          threshold:
+            value: 0.9
+        - name: custom-metric-2
+          backend:
+            name: prometheus
+            prometheus:
+              query: 'sum(my_custom_metric_2)'
+          threshold:
+            value: 0.8
