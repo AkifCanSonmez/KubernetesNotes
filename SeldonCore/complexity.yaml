@@ -1,0 +1,35 @@
+apiVersion: machinelearning.seldon.io/v1  # Kullanılan Seldon Core API sürümü
+kind: SeldonDeployment  # Kubernetes kaynağının türü, burada bir Seldon Deployment tanımı
+metadata:
+  name: chained-models-pipeline-with-custom-transformer  # Seldon Deployment nesnesinin benzersiz adı
+
+spec:  # Seldon Deployment tanımının spesifikasyonları
+  name: chained-pipeline  # Deployment için kullanıcı tarafından tanımlanan isim
+  predictors:  # Tahminciler listesi, her bir tahminci bir model veya iş akışı tanımı içerir
+    - graph:  # Tahmincinin iş akışını tanımlayan graf yapısı
+        name: model-1  # İlk modelin adı
+        type: MODEL  # Bu bileşenin türü, MODEL olarak belirtilmiş
+        endpoint:  # Modelin erişim noktası tanımı
+          type: REST  # Erişim noktasının türü, REST API üzerinden erişim sağlar
+        modelUri: s3://mybucket/model-1-path  # İlk modelin saklandığı S3 bucket ve yol bilgisi
+        implementation: TENSORFLOW_SERVER  # Modelin TensorFlow Serving kullanarak servis edilmesi gerektiğini belirtir
+        children:  # model-1'in alt bileşenleri; burada bir dönüştürücü ve ardından bir model bulunuyor
+          - name: transformer-for-model-2  # Dönüştürücünün adı
+            type: TRANSFORMER  # Bileşenin türü, TRANSFORMER olarak belirtilmiş
+            endpoint:  
+              type: REST  # Dönüştürücünün erişim noktası türü
+            spec:  # Dönüştürücü için özel spesifikasyon
+              containers:  # Dönüştürücüyü çalıştıracak konteyner tanımlamaları
+                - image: myregistry/my-custom-transformer-image:latest  # Dönüştürücü için kullanılacak özel Docker imajı
+                  name: custom-transformer-container  # Konteyner için isim
+            children:  # Dönüştürücünün alt bileşeni; burada ikinci bir model var
+              - name: model-2  # İkinci modelin adı
+                type: MODEL  # Bileşenin türü, MODEL olarak belirtilmiş
+                endpoint:
+                  type: REST  # Modelin erişim noktası türü
+                modelUri: s3://mybucket/model-2-path  # İkinci modelin saklandığı S3 bucket ve yol bilgisi
+                implementation: TENSORFLOW_SERVER  # İkinci modelin de TensorFlow Serving kullanarak servis edilmesi gerektiğini belirtir
+                children: []  # model-2'nin alt bileşeni yok
+        envSecretRefName: seldon-s3-secret  # S3 erişimi için gerekli kimlik bilgilerinin saklandığı Kubernetes Secret'ın adı
+      name: example-predictor  # Tahminci için kullanıcı tarafından tanımlanan isim
+      replicas: 1  # Bu tahminci için oluşturulacak podların sayısı
