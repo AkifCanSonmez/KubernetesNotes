@@ -1,0 +1,15 @@
+apiVersion: "serving.kserve.io/v1beta1" # KServe Inference Service için kullanılan API sürümü
+kind: "InferenceService" # Tanımlanan kaynağın türü, bu durumda bir Inference Service (Tahmin Hizmeti)
+metadata:
+  name: "tensorflow-ab-test" # Inference Service'in adı, bu servis "tensorflow-ab-test" olarak adlandırılmış
+  annotations:
+    prometheus.io/scrape: 'true' # Prometheus tarafından izlenmesi gereken bir hizmet olduğunu belirten bir Prometheus işareti
+    prometheus.io/port: '8080' # Prometheus'un bu hizmeti hangi port üzerinden izleyeceğini belirten bir işaret
+spec:
+  predictor:
+    canaryTrafficPercent: 20 # Canary modeline yönlendirilecek trafiğin yüzdesi, bu durumda %20
+    tensorflow:
+      storageUri: "gs://your-bucket/path/to/model-a" # Ana modelin bulunduğu depolama yolu, "model-a" olarak adlandırılmış
+    canary:
+      tensorflow:
+        storageUri: "gs://your-bucket/path/to/model-b" # Canary modelin bulunduğu depolama yolu, "model-b" olarak adlandırılmış
