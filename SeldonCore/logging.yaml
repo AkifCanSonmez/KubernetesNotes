@@ -1,0 +1,22 @@
+apiVersion: machinelearning.seldon.io/v1
+kind: SeldonDeployment
+metadata:
+  name: tensorflow-model
+  annotations:
+    prometheus.io/scrape: 'true'  # Prometheus'un bu servisi izlemesi için
+    prometheus.io/path: '/prometheus'  # Prometheus metriklerinin yolu
+    prometheus.io/port: '8000'  # Prometheus metriklerinin toplandığı port
+spec:
+  predictors:
+    - name: default
+      replicas: 1
+      graph:
+        name: tensorflow-model
+        type: MODEL
+        implementation: TENSORFLOW_SERVER  # TensorFlow model sunucusunu kullan
+        modelUri: gs://mybucket/tensorflow-model  # Modelin bulunduğu URI
+        endpoint:
+          type: REST
+        children: []
+        logger:  # Loglama ayarları
+          mode: all  # Hem giriş hem de çıkış mesajlarını logla
