@@ -1,0 +1,8 @@
+apiVersion: "serving.kserve.io/v1beta1"
+kind: "InferenceService"
+metadata:
+  name: "tensorflow-model"
+spec:
+  predictor:
+    tensorflow:
+      storageUri: "gs://your-bucket/path/to/model"
