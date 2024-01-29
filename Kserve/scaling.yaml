@@ -1,0 +1,10 @@
+apiVersion: "serving.kserve.io/v1beta1"
+kind: "InferenceService"
+metadata:
+  name: "tensorflow-model-scaling"
+spec:
+  predictor:
+    tensorflow:
+      storageUri: "gs://your-bucket/path/to/model"
+    minReplicas: 1  # Minimum replica sayısı
+    maxReplicas: 5  # Maksimum replica sayısı
