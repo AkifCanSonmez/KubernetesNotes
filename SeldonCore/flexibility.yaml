@@ -1,0 +1,26 @@
+apiVersion: machinelearning.seldon.io/v1  # Kullanılan Seldon Core API sürümü
+kind: SeldonDeployment  # Kubernetes kaynağının türü, burada bir Seldon Deployment tanımı
+metadata:
+  name: ab-test-models  # Seldon Deployment nesnesinin benzersiz adı
+spec:
+  predictors:  # Tahminciler listesi, her bir tahminci bir model veya iş akışı tanımı içerir
+    - name: model-a-predictor  # İlk tahminci/model için tanımlayıcı isim
+      replicas: 1  # Bu model için çalıştırılacak pod sayısı
+      traffic: 70  # Trafikten %70'inin bu modele yönlendirilmesi
+      graph:  # Modelin iş akışını tanımlayan graf yapısı
+        name: model-a  # Modelin adı
+        type: MODEL  # Bileşenin türü, burada bir model olarak belirtilmiş
+        implementation: TENSORFLOW_SERVER  # Modelin TensorFlow modeli olarak servis edileceğini belirtir
+        modelUri: s3://mybucket/model-a-path  # Model A'nın saklandığı S3 bucket ve yol bilgisi
+        endpoint:
+          type: REST  # Modelin REST API üzerinden erişim noktası
+    - name: model-b-predictor  # İkinci tahminci/model için tanımlayıcı isim
+      replicas: 1  # Bu model için çalıştırılacak pod sayısı
+      traffic: 30  # Trafikten %30'unun bu modele yönlendirilmesi
+      graph:  # Modelin iş akışını tanımlayan graf yapısı
+        name: model-b  # Modelin adı
+        type: MODEL  # Bileşenin türü, burada bir model olarak belirtilmiş
+        implementation: TENSORFLOW_SERVER  # Modelin TensorFlow modeli olarak servis edileceğini belirtir
+        modelUri: s3://mybucket/model-b-path  # Model B'nin saklandığı S3 bucket ve yol bilgisi
+        endpoint:
+          type: REST  # Modelin REST API üzerinden erişim noktası
